@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+// 拆分css样式的插件
+let ExtractTextWebpackPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -24,29 +26,26 @@ module.exports = {
             {
                 test:/\.css$/,
                 exclude: /(node_modules)/,
-                use:[
-                    {
-                        loader:"style-loader"
-                    },
-                    {
-                        loader: "css-loader"
-                    }
-                ]
+                use: ExtractTextWebpackPlugin.extract({
+                    // 将css用link的方式引入就不再需要style-loader了
+                    use: 'css-loader'       
+                })
             },
             {
                 test:/\.scss$/,
                 exclude: /(node_modules)/,
-                use:[
-                    {
-                        loader:"style-loader"
-                    },
-                    {
-                        loader: "css-loader"
-                    },
-                    {
-                        loader: "sass-loader"
-                    }
-                ]
+                use: ExtractTextWebpackPlugin.extract({
+                    // 将css用link的方式引入就不再需要style-loader了
+                    use:[
+                        {
+                            loader: "css-loader"
+                        },
+                        {
+                            loader: "sass-loader"
+                        }
+                    ]       
+                })
+                
             }
         ]
     },
@@ -62,6 +61,14 @@ module.exports = {
             filename: 'out.html',
             chunks: ['out']   // 对应关系,index.js对应的是index.html
         }),
+        // 拆分后会把css文件放到dist目录下的css/style.css
+        new ExtractTextWebpackPlugin({
+            filename: 'css/index.css'
+        }),
+        // 拆分后会把css文件放到dist目录下的css/style.css
+        new ExtractTextWebpackPlugin({
+            filename: 'css/out.css'
+        })    
     ]
 }
 
